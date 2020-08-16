@@ -1,9 +1,11 @@
 let cFILE = "Translation.re"; 
 
-exception FetchModuleFailed;
 exception ModuleLoadingFailedExn;
 
 let modulesRootPath = "locales";
+let currentLanguage = ref("en");
+let defaultModuleName = "translation";
+let defaultKeyValue = "?notFound?";
 
 type tModuleKeyValue = StringKeyValue(string) | DictionaryKeyValue(Js.Dict.t(tModuleKeyValue)); 
 
@@ -50,11 +52,11 @@ let fetchModule = (lang, moduleName) => {
     })
   |> Js.Promise.catch((err) => {
     Js.Console.error2({j|$cFILE:$cFUN: error while loading lang "$lang" _module "$moduleName"|j}, err);
-    Js.Promise.reject(FetchModuleFailed);
+    Js.Promise.reject(ModuleLoadingFailedExn);
   })
 }
 
-let rec getModuleFromCash = (lang, moduleName) => {
+let getModuleFromCash = (lang, moduleName) => {
   let cFUN = "getModuleFromCash()";
 
   let fetch = () => {
@@ -71,7 +73,7 @@ let rec getModuleFromCash = (lang, moduleName) => {
     |> Js.Promise.catch((err) => {
       Js.Console.error2({j|$cFILE:$cFUN: error while loading lang "$lang" module "$moduleName"|j}, err);
       moduleCash -> Js.Dict.set(lang ++ moduleName, ModuleLoadingFailed);
-      Js.Promise.reject(FetchModuleFailed);
+      Js.Promise.reject(ModuleLoadingFailedExn);
     })
     moduleCash -> Js.Dict.set(lang ++ moduleName, ModuleIsLoading(promise));
     promise
@@ -92,7 +94,7 @@ let rec getModuleFromCash = (lang, moduleName) => {
       keys: Js.Dict.empty(),
     }
     moduleCash -> Js.Dict.set(lang ++ moduleName, ModuleIsNotLoaded(_module));
-    getModuleFromCash(lang, moduleName);
+    fetch();
   }
 }
 
@@ -120,11 +122,78 @@ let parseKey = (key: string) => {
   }
 
   let (moduleName, keyStr) = parseModuleNme(key) 
-  let path = parsePath(keyStr, []);
+  let path = parsePath(keyStr, []) -> List.rev;
 
   {
     moduleName: moduleName,
     path: path,
   }
 
+}
+
+let translateKey = (key: string) => {
+  let cFUN = "translateKey()";
+  let parsedKey = parseKey(key);
+  let moduleName = switch(parsedKey.moduleName) {
+  | Some(v) => if (v -> Js.String2.trim == "") defaultModuleName else v
+  | None => defaultModuleName
+  }
+
+  let rec resolveKey = (_keys, path) => {
+    if (path -> List.length == 0) {
+      None;
+    } else {
+      let key = path -> List.hd;
+      let keys = _keys -> Js.Dict.keys;
+      let values = _keys -> Js.Dict.values;
+
+      let break = ref(false);
+      let idx = ref(0);
+      let resolvedKeyValue = ref(None);
+
+      while(!break^) {
+        if (keys[idx^] == key) {
+          if (path -> List.length == 1) {
+            switch(values[idx^]) {
+            | StringKeyValue(v) => 
+              resolvedKeyValue  := Some(v);
+              break := true;
+            | DictionaryKeyValue(_) => 
+              resolvedKeyValue := None
+              break := true;
+            }
+          } else {
+            switch(values[idx^]) {
+            | StringKeyValue(_) => 
+              resolvedKeyValue  := None;
+              break := true;
+            | DictionaryKeyValue(v) => 
+              resolvedKeyValue := resolveKey(v, path -> List.tl);
+              switch(resolvedKeyValue^) {
+              | Some(_) => break := true
+              | None => idx := idx^ + 1
+              }
+            }
+          }
+        } else {
+          idx := idx^ + 1;
+        }
+      }
+      resolvedKeyValue^;
+    }
+  }
+
+  getModuleFromCash(currentLanguage^, moduleName)
+  |> Js.Promise.then_((_module) => {
+      let resolvedKeyValue = resolveKey(_module.keys, parsedKey.path);
+      switch(resolvedKeyValue) {
+      | Some(v) => Js.Promise.resolve(v); 
+      | None => Js.Promise.resolve(defaultKeyValue);
+      }
+    })
+  |> Js.Promise.catch((exn) => {
+      Js.Console.error2({j|$cFILE:$cFUN getModuleFromCash() failed|j}, exn);
+      Js.Console.error({j|$cFILE:$cFUN key not found: $key|j});
+      Js.Promise.resolve(defaultKeyValue);
+    })
 }

@@ -1,6 +1,7 @@
 let cFILE = "Translation.re"; 
 
 exception ModuleLoadingFailedExn;
+exception KeyValueParseInternalErrorExn;
 
 let modulesRootPath = "locales";
 let currentLanguage = ref("en");
@@ -131,6 +132,7 @@ let parseKey = (key: string) => {
 
 }
 
+/*
 let translateKey = (key: string) => {
   let cFUN = "translateKey()";
   let parsedKey = parseKey(key);
@@ -197,3 +199,40 @@ let translateKey = (key: string) => {
       Js.Promise.resolve(defaultKeyValue);
     })
 }
+
+let interpolateKeyValue = (keyValue, bindings ) = {
+  let break = ref(false);
+
+  type vmatch = {
+    name: string,
+    startIdx: int,
+    endIdx: int,
+  }
+
+  let doit = (keyValue, bindings, resultStr) => {
+    let idx = keyValue -> Js.String2.search([%re "/\\${\\w+}"]);
+    if (idx > -1) {
+      let s1 = keyValue -> Js.String2.slice(0, idx);
+      let m = keyValue -> Js.String2.match([%re "/\\w+"]);
+      if (m -> Js.Array.length < 1) {
+        exception KeyValueParseInternalErrorExn;
+      } else {
+        let s2 = m[0];
+        let s3 = 
+      }
+      let s2
+    }
+  }
+
+
+  let matches = List(vmatch);
+
+
+  while (!break^) {
+    if (m -> Js.Array.length > 1) {
+      [
+
+
+  }
+}
+*/

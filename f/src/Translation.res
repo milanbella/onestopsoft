@@ -125,27 +125,6 @@ let parseKey = (key: string) => {
   }
 }
 
-type tStringMatch = {
-  match: Js.Null.t<array<string>>,
-  index: int,
-}
-
-let stringMatch: (string, Js.Re.t) => tStringMatch = %raw(`
-  function (str, regex) {
-    let m = str.match(regex);
-    if (m === null) {
-      return {
-        match: null,
-        index: -1,
-      }
-    } else {
-      return {
-        match: m,
-        index: m.index,
-      }
-    }
-  }
-`)
 
 let translateKey = (key: string) => {
   let cFUN = "translateKey()";
@@ -219,40 +198,49 @@ let translateKey = (key: string) => {
     })
 }
 
-/*
-let interpolateKeyValue = (keyValue, bindings ) = {
-  let break = ref(false);
+type tStringMatch = {
+  match: Js.Null.t<array<string>>,
+  index: int,
+}
 
-  type vmatch = {
-    name: string,
-    startIdx: int,
-    endIdx: int,
-  }
-
-  let doit = (keyValue, bindings, resultStr) => {
-    let idx = keyValue -> Js.String2.search([%re "/\\${\\w+}"]);
-    if (idx > -1) {
-      let s1 = keyValue -> Js.String2.slice(0, idx);
-      let m = keyValue -> Js.String2.match([%re "/\\w+"]);
-      if (m -> Js.Array.length < 1) {
-        exception KeyValueParseInternalErrorExn;
-      } else {
-        let s2 = m[0];
-        let s3 = 
+let stringMatch: (string, Js.Re.t) => tStringMatch = %raw(`
+  function (str, regex) {
+    let m = str.match(regex);
+    if (m === null) {
+      return {
+        match: null,
+        index: -1,
       }
-      let s2
+    } else {
+      return {
+        match: m,
+        index: m.index,
+      }
     }
   }
+`)
 
+let interpolateKeyValue = (keyValue, bindings) => {
+  let rgx = Js.Re.fromString("(\\${(\\w+)})");
 
-  let matches = List(vmatch);
-
-
-  while (!break^) {
-    if (m -> Js.Array.length > 1) {
-      [
-
-
+  let rec doit = (restStr, bindings, result) => {
+    let m = restStr -> stringMatch(rgx);
+    switch (m.match -> Js.Null.toOption) {
+    | Some(groups) =>
+      let s1 = restStr -> Js.String2.slice(~from=0, ~to_=m.index);
+      switch(bindings -> Js.Dict.get(groups[1])) {
+      | Some(s) => 
+        let s2 = s;
+        let s3 = restStr -> Js.String2.sliceToEnd(~from=(m.index + groups[0] -> Js.String2.length))
+        doit(s3, bindings, result ++ s1 ++ s2)
+      | None =>
+        let s2 = groups[0];
+        let s3 = restStr -> Js.String2.sliceToEnd(~from=(m.index + groups[0] -> Js.String2.length))
+        doit(s3, bindings, result ++ s1 ++ s2)
+      }
+    | None =>
+      result ++ restStr;
+    }
   }
+  doit(keyValue, bindings, "")
 }
-*/

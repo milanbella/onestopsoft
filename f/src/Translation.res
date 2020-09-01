@@ -125,8 +125,62 @@ let parseKey = (key: string) => {
   }
 }
 
+type tStringMatch = {
+  match: Js.Null.t<array<string>>,
+  index: int,
+}
 
-let translateKey = (key: string) => {
+let stringMatch: (string, Js.Re.t) => tStringMatch = %raw(`
+  function (str, regex) {
+    let m = str.match(regex);
+    if (m === null) {
+      return {
+        match: null,
+        index: -1,
+      }
+    } else {
+      return {
+        match: m,
+        index: m.index,
+      }
+    }
+  }
+`)
+
+let interpolateKeyValue = (keyValue, ~bindings=?, ()) => {
+  let rgx = Js.Re.fromString("(\\${(\\w+)})");
+
+  let rec doit = (restStr, bindings, result) => {
+    let m = restStr -> stringMatch(rgx);
+    switch (m.match -> Js.Null.toOption) {
+    | Some(groups) =>
+      let s1 = restStr -> Js.String2.slice(~from=0, ~to_=m.index);
+      switch(bindings) {
+      | Some(_bindings) =>
+        switch(_bindings -> Js.Dict.get(groups[1])) {
+        | Some(s) => 
+          let s2 = s;
+          let s3 = restStr -> Js.String2.sliceToEnd(~from=(m.index + groups[0] -> Js.String2.length))
+          doit(s3, Some(_bindings), result ++ s1 ++ s2)
+        | None =>
+          let s2 = groups[0];
+          let s3 = restStr -> Js.String2.sliceToEnd(~from=(m.index + groups[0] -> Js.String2.length))
+          doit(s3, Some(_bindings), result ++ s1 ++ s2)
+        }
+      | None =>
+          let s2 = groups[0];
+          let s3 = restStr -> Js.String2.sliceToEnd(~from=(m.index + groups[0] -> Js.String2.length))
+          doit(s3, None, result ++ s1 ++ s2)
+       }
+    | None =>
+      result ++ restStr;
+    }
+  }
+  doit(keyValue, bindings, "")
+}
+
+
+let translateKey = (key: string, ~bindings=?, ()) => {
   let cFUN = "translateKey()";
   let parsedKey = parseKey(key);
   let moduleName = switch(parsedKey.moduleName) {
@@ -187,7 +241,11 @@ let translateKey = (key: string) => {
   |> Js.Promise.then_((_module) => {
       let resolvedKeyValue = resolveKey(_module.keys, parsedKey.path);
       switch(resolvedKeyValue) {
-      | Some(v) => Js.Promise.resolve(v); 
+      | Some(v) => 
+        switch(bindings) {
+        | Some(_b) => interpolateKeyValue(v, ~bindings=_b, ()) -> Js.Promise.resolve; 
+        | None => interpolateKeyValue(v, ()) -> Js.Promise.resolve;
+        }
       | None => Js.Promise.resolve(defaultKeyValue);
       }
     })
@@ -198,49 +256,23 @@ let translateKey = (key: string) => {
     })
 }
 
-type tStringMatch = {
-  match: Js.Null.t<array<string>>,
-  index: int,
-}
+let useTranslate = () => {
+  let cFUN = "useTranslate()";
+  let (translatedKeyValue, setStatetranslatedKeyValue) = React.useState(() => "");
 
-let stringMatch: (string, Js.Re.t) => tStringMatch = %raw(`
-  function (str, regex) {
-    let m = str.match(regex);
-    if (m === null) {
-      return {
-        match: null,
-        index: -1,
-      }
-    } else {
-      return {
-        match: m,
-        index: m.index,
-      }
-    }
+  (key, bindings=?, ()) => {
+    React.useEffect(() => {
+      ignore(translateKey(key, ~bindings, ())
+      |> Js.Promise.then_((translatedKeyValue) => {
+          //setStatetranslatedKeyValue(translatedKeyValue);
+          Js.Promise.resolve(());
+        })
+      |> Js.Promise.catch((exn) => {
+          Js.Console.error2(j`${cFILE}:${cFUN} failed to translate key '${key}'`, exn);
+          Js.Promise.resolve(());
+        }));
+    })
+    translatedKeyValue
   }
-`)
 
-let interpolateKeyValue = (keyValue, bindings) => {
-  let rgx = Js.Re.fromString("(\\${(\\w+)})");
-
-  let rec doit = (restStr, bindings, result) => {
-    let m = restStr -> stringMatch(rgx);
-    switch (m.match -> Js.Null.toOption) {
-    | Some(groups) =>
-      let s1 = restStr -> Js.String2.slice(~from=0, ~to_=m.index);
-      switch(bindings -> Js.Dict.get(groups[1])) {
-      | Some(s) => 
-        let s2 = s;
-        let s3 = restStr -> Js.String2.sliceToEnd(~from=(m.index + groups[0] -> Js.String2.length))
-        doit(s3, bindings, result ++ s1 ++ s2)
-      | None =>
-        let s2 = groups[0];
-        let s3 = restStr -> Js.String2.sliceToEnd(~from=(m.index + groups[0] -> Js.String2.length))
-        doit(s3, bindings, result ++ s1 ++ s2)
-      }
-    | None =>
-      result ++ restStr;
-    }
-  }
-  doit(keyValue, bindings, "")
 }

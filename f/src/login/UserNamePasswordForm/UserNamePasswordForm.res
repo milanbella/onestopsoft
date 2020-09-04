@@ -1,9 +1,11 @@
 @react.component
-let make = () =>
+let make = () => {
+  let t = Translation.useTranslate()
+
   <div className="content">
     <div className="box">
       <div className="field">
-        <label className="label"> {React.string("User name or email")} </label>
+        <label className="label"> {t(~key="User name or email", ())} </label>
         <div className="control"> <input type_="text" /> </div>
       </div>
       <div className="field">
@@ -17,3 +19,4 @@ let make = () =>
       </div>
     </div>
   </div>
+}

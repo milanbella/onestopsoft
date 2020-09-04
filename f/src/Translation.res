@@ -1,3 +1,5 @@
+// This is useTranslation() hook isnspired by https://react.i18next.com/latest/usetranslation-hook which did not behave well with reason-react
+
 let cFILE = "Translation.re"
 
 exception ModuleLoadingFailedExn
@@ -180,7 +182,7 @@ let interpolateKeyValue = (keyValue, ~bindings=?, ()) => {
 }
 
 
-let translateKey = (key: string, ~bindings=?, ()) => {
+let translateKey = (~key: string, ~bindings=?, ()) => {
   let cFUN = "translateKey()";
   let parsedKey = parseKey(key);
   let moduleName = switch(parsedKey.moduleName) {
@@ -256,23 +258,28 @@ let translateKey = (key: string, ~bindings=?, ()) => {
     })
 }
 
+let identityFn = (x) => x
+
 let useTranslate = () => {
   let cFUN = "useTranslate()";
   let (translatedKeyValue, setStatetranslatedKeyValue) = React.useState(() => "");
 
-  (key, bindings=?, ()) => {
-    React.useEffect(() => {
-      ignore(translateKey(key, ~bindings, ())
-      |> Js.Promise.then_((translatedKeyValue) => {
-          //setStatetranslatedKeyValue(translatedKeyValue);
-          Js.Promise.resolve(());
-        })
-      |> Js.Promise.catch((exn) => {
-          Js.Console.error2(j`${cFILE}:${cFUN} failed to translate key '${key}'`, exn);
-          Js.Promise.resolve(());
-        }));
-    })
-    translatedKeyValue
+  (~key, ~bindings=?, ()) => {
+    ignore( 
+      switch(bindings) {
+      | Some(b) => translateKey(~key, ~bindings=b, ())
+      | None => translateKey(~key, ()) 
+      } |> Js.Promise.then_((translatedKeyValue) => {
+            setStatetranslatedKeyValue(_ => translatedKeyValue);
+            //ignore(identityFn(5));
+            Js.Promise.resolve(());
+          })
+        |> Js.Promise.catch((exn) => {
+            Js.Console.error2(j`${cFILE}:${cFUN} failed to translate key '${key}'`, exn);
+            Js.Promise.resolve(());
+          })
+    )
+    React.string(translatedKeyValue)
   }
 
 }

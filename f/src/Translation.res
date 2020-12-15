@@ -4,6 +4,7 @@ let cFILE = "Translation.re"
 
 exception ModuleLoadingFailedExn
 exception KeyValueParseInternalErrorExn
+exception AsserionFailedExn
 
 let modulesRootPath = "locales"
 let currentLanguage = ref("en")
@@ -48,7 +49,7 @@ let jsonDecodeModule = {
 let fetchModule = (lang, moduleName) => {
   let cFUN = "fetchModule()"
 
-  Fetch.fetch("/" ++ (modulesRootPath ++ ("/" ++ (lang ++ (moduleName ++ ".json")))))
+  Fetch.fetch("/" ++ (modulesRootPath ++ ("/" ++ (lang ++ "/" ++ (moduleName ++ ".json")))))
   |> Js.Promise.then_(Fetch.Response.text)
   |> Js.Promise.then_(text => text |> Json.parseOrRaise |> jsonDecodeModule |> Js.Promise.resolve)
   |> Js.Promise.catch(err => {
@@ -123,7 +124,7 @@ let parseKey = (key: string) => {
 
   {
     moduleName: moduleName,
-    path: path,
+    path: Belt.List.reverse(path),
   }
 }
 
@@ -150,7 +151,7 @@ let stringMatch: (string, Js.Re.t) => tStringMatch = %raw(`
 `)
 
 let interpolateKeyValue = (keyValue, ~bindings=?, ()) => {
-  let rgx = Js.Re.fromString("(\\${(\\w+)})");
+  let rgx = Js.Re.fromString("\\${(\\w+)}");
 
   let rec doit = (restStr, bindings, result) => {
     let m = restStr -> stringMatch(rgx);
@@ -199,43 +200,47 @@ let translateKey = (~key: string, ~bindings=?, ()) => {
       let keys = _keys -> Js.Dict.keys;
       let values = _keys -> Js.Dict.values;
 
-      let rec scanKeys = (keys, values, pathItem, pathRest, idx) => {
+      let rec scanKeys = (keys, values, idx, pathItem, pathRest) => {
         switch (pathItem) {
         | None => None
         | Some(pathItem) =>
-          let i = idx + 1;
-          if (i + 1 > keys -> Array.length) {
+          if (idx + 1 > keys -> Array.length) {
             None;
           } else {
-            let k = keys[i];
+            let k = keys[idx];
             if (k == pathItem) {
-              let v = values[i];
+              let v = values[idx];
               switch(v) {
-              | StringKeyValue(s) =>
-                switch(pathRest) {
-                | Some(_) => None
-                | None =>  Some(s)
+              | StringKeyValue(s) => 
+                switch (pathRest) {
+                | Some(path) =>
+                  if (path -> Belt.List.length == 0) {
+                    Some(s);
+                  } else {
+                    None;
+                  }
+                | None => raise(AsserionFailedExn)
                 }
               | DictionaryKeyValue(d) =>
                 let _keys = d;
                 switch(pathRest) {
                 | Some(path) => 
-                    let res = resolveKey(_keys, path);
-                    switch(res) {
-                    | Some(s) => Some(s)
-                    | None => scanKeys(keys, values, Some(pathItem), pathRest, i)
-                    }
-                | None => scanKeys(keys, values, Some(pathItem), pathRest, i)
+                  let res = resolveKey(_keys, path);
+                  switch(res) {
+                  | Some(s) => Some(s)
+                  | None => scanKeys(keys, values, idx+1,   Some(pathItem), pathRest)
+                  }
+                | None => raise(AsserionFailedExn);
                 }
               }
             } else {
-              scanKeys(keys, values, Some(pathItem), pathRest, i)
+              scanKeys(keys, values, idx+1, Some(pathItem), pathRest)
             }
           }
         }
       }
 
-       scanKeys(keys, values, pathItem, pathRest, -1);
+       scanKeys(keys, values, 0, pathItem, pathRest);
     }
   }
 
@@ -258,20 +263,17 @@ let translateKey = (~key: string, ~bindings=?, ()) => {
     })
 }
 
-let identityFn = (x) => x
-
 let useTranslate = () => {
   let cFUN = "useTranslate()";
-  let (translatedKeyValue, setStatetranslatedKeyValue) = React.useState(() => "");
 
   (~key, ~bindings=?, ()) => {
+    let (translatedKeyValue, setStatetranslatedKeyValue) = React.useState(() => "");
     ignore( 
       switch(bindings) {
       | Some(b) => translateKey(~key, ~bindings=b, ())
       | None => translateKey(~key, ()) 
       } |> Js.Promise.then_((translatedKeyValue) => {
             setStatetranslatedKeyValue(_ => translatedKeyValue);
-            //ignore(identityFn(5));
             Js.Promise.resolve(());
           })
         |> Js.Promise.catch((exn) => {

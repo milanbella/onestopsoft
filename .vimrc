@@ -1,5 +1,1 @@
-set tabstop=2 
-set shiftwidth=2 
-set expandtab
-
-au! BufNewFile,BufRead *.res setf reason
+autocmd FileType json, html, js set tabstop=2 | set shiftwidth=2 | set expandtab

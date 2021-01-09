@@ -1,0 +1,1 @@
+exception BAD_REQUEST

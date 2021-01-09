@@ -1,3 +1,4 @@
 type t
 
-@bs.get external status: t => unit = "body"
+@bs.send external status: (t, int) => unit = "status"
+@bs.send external end: (t) => unit = "end"

@@ -1,4 +1,7 @@
 {
-  "User name or email": "User name or email: ${var1}",
-  "Password": "Password"
+  "UserNamePasswordForm": {
+    "User name or email": "User name or email",
+    "Password": "Password",
+    "Submit": "Submit"
+  }
 }

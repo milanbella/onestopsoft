@@ -1,18 +1,4 @@
 {
   "User name or email": "User name or email: ${var1}",
-  "Password": "Password",
-  "scope1": {
-    "User name or email": "scope1 - User name or email",
-    "User name or email2": "scope1 - User name or email2",
-    "scope2": {
-    },
-    "scope3": {
-      "scope4": {
-        "User name or email": "scope1 - User name or email",
-        "User name or email1": "scope4 - User name or email1",
-        "User name or email2": "scope1 - ${var2} ${var3} ${var1} User name or email2: ${var1}"
-      }
-    }
-  }
-
+  "Password": "Password"
 }

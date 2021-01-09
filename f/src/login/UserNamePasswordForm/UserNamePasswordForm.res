@@ -1,3 +1,5 @@
+let componentName = "UserNamePasswordForm"
+
 @react.component
 let make = () => {
   let t = Translation.useTranslate()
@@ -5,16 +7,16 @@ let make = () => {
   <div className="content">
     <div className="box">
       <div className="field">
-        <label className="label"> {t(~key="scope1.scope3.scope4.User name or email2", ~bindings=Js.Dict.fromArray([("var1", "foo1"), ("var2", "foo2")]), ())} </label>
+        <label className="label"> {t(~key="${componentName}.User name or email", ())}{React.string(":")} </label>
         <div className="control"> <input type_="text" /> </div>
       </div>
       <div className="field">
-        <label className="label"> {React.string("Password")} </label>
+        <label className="label"> {t(~key="${componentName}.Password", ())} </label>
         <div className="control"> <input type_="password" /> </div>
       </div>
       <div className="field">
         <div className="control">
-          <button className="button is-link"> {React.string("Submit")} </button>
+          <button className="button is-link"> {t(~key="${componentName}.Submit", ())} </button>
         </div>
       </div>
     </div>

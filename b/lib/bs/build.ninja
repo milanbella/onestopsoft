@@ -1,0 +1,25 @@
+rescript = 1
+rule astj
+  command = "C:\idempiere\onestopsoft\b\node_modules\bs-platform\win32\bsc.exe"  -warn-error +101 -bs-v 8.4.2  -absname -bs-ast -o $out $i
+o src\Route.ast : astj ..\..\src\Route.res
+rule deps
+  command = "C:\idempiere\onestopsoft\b\node_modules\bs-platform\win32\bsb_helper.exe" -hash 4e059d132a9a2cb13f44f4a2e4f54f7b $in
+  restat = 1
+o src\Route.d : deps src\Route.ast
+rule mij
+  command = "C:\idempiere\onestopsoft\b\node_modules\bs-platform\win32\bsc.exe" -I src   -warn-error +101 -bs-package-name rescript-project-template -bs-package-output commonjs:$in_d:.bs.js $i
+  dyndep = 1
+  restat = 1
+o src\Route.cmj src\Route.cmi ..\..\src\Route.bs.js : mij src\Route.ast
+o src\Logger.ast : astj ..\..\src\Logger.res
+o src\Logger.d : deps src\Logger.ast
+o src\Logger.cmj src\Logger.cmi ..\..\src\Logger.bs.js : mij src\Logger.ast
+o src\Request.ast : astj ..\..\src\Request.res
+o src\Request.d : deps src\Request.ast
+o src\Request.cmj src\Request.cmi ..\..\src\Request.bs.js : mij src\Request.ast
+o src\Response.ast : astj ..\..\src\Response.res
+o src\Response.d : deps src\Response.ast
+o src\Response.cmj src\Response.cmi ..\..\src\Response.bs.js : mij src\Response.ast
+o src\Exception.ast : astj ..\..\src\Exception.res
+o src\Exception.d : deps src\Exception.ast
+o src\Exception.cmj src\Exception.cmi ..\..\src\Exception.bs.js : mij src\Exception.ast

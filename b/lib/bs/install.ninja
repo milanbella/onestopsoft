@@ -1,0 +1,26 @@
+rescript = 1
+rule cp
+  command = cmd.exe /C copy /Y $i $out >NUL
+rule touch
+ command = cmd.exe /C type nul >>$out & copy $out+,, >NUL
+o Route.cmi : cp ..\bs\src\Route.cmi
+o Route.cmj : cp ..\bs\src\Route.cmj
+o Route.cmt : cp ..\bs\src\Route.cmt
+o Route.res : cp ..\..\src\Route.res
+o Logger.cmi : cp ..\bs\src\Logger.cmi
+o Logger.cmj : cp ..\bs\src\Logger.cmj
+o Logger.cmt : cp ..\bs\src\Logger.cmt
+o Logger.res : cp ..\..\src\Logger.res
+o Request.cmi : cp ..\bs\src\Request.cmi
+o Request.cmj : cp ..\bs\src\Request.cmj
+o Request.cmt : cp ..\bs\src\Request.cmt
+o Request.res : cp ..\..\src\Request.res
+o Response.cmi : cp ..\bs\src\Response.cmi
+o Response.cmj : cp ..\bs\src\Response.cmj
+o Response.cmt : cp ..\bs\src\Response.cmt
+o Response.res : cp ..\..\src\Response.res
+o Exception.cmi : cp ..\bs\src\Exception.cmi
+o Exception.cmj : cp ..\bs\src\Exception.cmj
+o Exception.cmt : cp ..\bs\src\Exception.cmt
+o Exception.res : cp ..\..\src\Exception.res
+build install.stamp : touch Route.cmi Route.cmj Logger.cmi Logger.cmj Request.cmi Request.cmj Response.cmi Response.cmj Exception.cmi Exception.cmj 

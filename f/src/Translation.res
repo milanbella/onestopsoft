@@ -122,10 +122,12 @@ let parseKey = (key: string) => {
   let (moduleName, keyStr) = parseModuleNme(key)
   let path = parsePath(keyStr, list{})->List.rev
 
-  {
+  let result = {
     moduleName: moduleName,
     path: Belt.List.reverse(path),
   }
+
+  result
 }
 
 type tStringMatch = {

@@ -1,2 +1,1 @@
-set -x
-DEBUG=myapp:* npm start
+node bin/www

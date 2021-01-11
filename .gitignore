@@ -1,3 +1,7 @@
 node_modules/
 *.bs.js
 *.swp
+f/lib/
+b/lib/
+f/package-lock.json
+b/package-lock.json

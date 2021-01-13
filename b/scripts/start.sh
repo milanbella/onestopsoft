@@ -1,1 +1,2 @@
-HOST='localhost' port=3000 node bin/www
+set -x
+DEBUG=myapp:* npm start

@@ -1,2 +1,2 @@
-type h = (Request.t) => Js.Promise.t<Response.t>
+type h = (Request.t, Response.t) => unit
 

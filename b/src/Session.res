@@ -1,17 +1,10 @@
 type t
 
-@bs.get external session: Request.t => t = "session"
+type cookieOptions = {
+  maxAge: option<int>,
+  secure: option<bool>,
+  sameSite: option<bool>,
+}
 
-
-let get: (t, string) => Js.Json.t = %raw(`
-  function (session, attribute) {
-    return session[attribute];
-  }
-`)
-
-
-let put: (t, string, Js.Json.t) => unit = %raw(`
-  function (session, attribute, value) {
-    session[attribute] = value;
-  }
-`)
+@bs.get external cookies: Request.t => Js.Json.t = "cookies"
+@bs.send external cookie: (Response.t, string,  string, cookieOptions) => unit = "cookie"

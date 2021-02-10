@@ -26,6 +26,14 @@ let error = (fileName, funcName, message) => {
   Js.Console.error(`ERROR: ${fileName}:${funcName}: ${message}`); 
 }
 
+let errorE = (fileName, funcName, message, err) => {
+  Js.Console.error2(`ERROR: ${fileName}:${funcName}: ${message}`, err); 
+}
+
 let errorA = (fileName, funcName, message, attrs: Js.Dict.t<string>) => {
   Js.Console.error2(`ERROR: ${fileName}:${funcName}: ${message}`, attrs); 
+}
+
+let errorEA = (fileName, funcName, message, err, attrs) => {
+  Js.Console.error3(`ERROR: ${fileName}:${funcName}: ${message}`, err, attrs); 
 }

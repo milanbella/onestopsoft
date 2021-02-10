@@ -3,6 +3,8 @@ FLG -ppx "C:\pok\onestopsoft\b\node_modules\bs-platform\win32\bsc.exe -as-ppx "
 S C:\pok\onestopsoft\b\node_modules\bs-platform\lib\ocaml
 B C:\pok\onestopsoft\b\node_modules\bs-platform\lib\ocaml
 FLG -w +a-4-9-20-40-41-42-50-61-102
+S C:\pok\onestopsoft\b\node_modules\@glennsl\bs-json\lib\ocaml
+B C:\pok\onestopsoft\b\node_modules\@glennsl\bs-json\lib\ocaml
 S src
 B lib\bs\src
 ####BSB GENERATED: NO EDIT}

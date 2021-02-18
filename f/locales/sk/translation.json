@@ -1,4 +1,8 @@
 {
-  "User name or email": "Užívateľské meno",
-  "Password": "Heslo"
+  "Login_userNamePasswordForm": {
+    "user name": "uzivatelske meno",
+    "email": "email",
+    "password": "heslo",
+    "submit": "posli"
+  }
 }

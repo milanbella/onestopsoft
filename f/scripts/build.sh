@@ -4,8 +4,8 @@ rm -f package-lock.json
 npm install
 rm -rf ../b/public
 mkdir ../b/public
+cp html/*.html ../b/public/
 cp -r locales/ ../b/public/
-cp index.html ../b/public/
 npm run clean
 npm run build
 npm run webpack

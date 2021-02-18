@@ -1,7 +1,8 @@
 {
-  "UserNamePasswordForm": {
-    "User name or email": "User name or email",
-    "Password": "Password",
-    "Submit": "Submit"
+  "Login_userNamePasswordForm": {
+    "user name": "user name",
+    "email": "email",
+    "password": "password",
+    "submit": "submit"
   }
 }

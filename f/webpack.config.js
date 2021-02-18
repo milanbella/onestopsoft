@@ -1,10 +1,12 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/Index.bs.js',
+  entry: {
+    index_login: './src/Index_login.bs.js' 
+  },
   output: {
     path: path.join(__dirname, "../b/public"),
-    filename: 'index.js',
+    filename: '[name].js',
   },
   devtool: 'inline-source-map',
 };

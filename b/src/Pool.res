@@ -23,3 +23,9 @@ let query = (queryStr: string, params: array<Pg.Query.param>): Js.Promise.t<Pg.Q
   })
 } 
 
+//@bs.send external connect: (t, (option<Js.Exn.t>, Client.t, done) => unit) => unit = "connect"
+
+let connect = (cb: (option<Js.Exn.t>, Pg.Client.t, Pg.Pool.done) => unit): unit =>  {
+  Pg.Pool.connect(pool, cb)
+}
+

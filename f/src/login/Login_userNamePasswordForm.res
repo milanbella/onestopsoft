@@ -8,7 +8,6 @@ module User = {
   }
 }
 
-
 let registerUser = (user: User.t): Js.Promise.t<Belt.Result.t<unit, string>> => {
   let encodeUser = () => {
     open Json.Encode

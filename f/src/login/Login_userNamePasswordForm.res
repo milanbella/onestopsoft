@@ -38,29 +38,39 @@ let make = () => {
   //let { register, handleSubmit } = HookForm.useForm();
   let {HookForm.register, handleSubmit} = HookForm.useForm();
 
-  handleSubmit((user: User.t) => {
-    ignore(registerUser(user))
-  })
+  let handleSubmitData = (~data as user: User.t, ~event as e) => {
+    ReactEvent.Form.preventDefault(e)
+    Js.Console.log("@@@@@@@@@@@@@@@@@@@@@ cp 500: handleSubmitData()")
+    Js.Console.log(user)
+    //ignore(registerUser(user))
+  }
 
-  <div className="content">
-    <div className="box">
-      <div className="field">
-        <label className="label" > {t(~key=`${componentName}.user name`, ())}{React.string(":")} </label>
-        <div className="control"> <input type_="text" name="userName" ref={ReactDOM.Ref.callbackDomRef(register(HookForm.makeRegisterOptions()))} /> </div>
-      </div>
-      <div className="field">
-        <label className="label"> {t(~key=`${componentName}.email`, ())}{React.string(":")} </label>
-        <div className="control"> <input type_="text"  name="userEmail" ref={ReactDOM.Ref.callbackDomRef(register(HookForm.makeRegisterOptions()))}/> </div>
-      </div>
-      <div className="field">
-        <label className="label"> {t(~key=`${componentName}.password`, ())} </label>
-        <div className="control"> <input type_="password" name="password" ref={ReactDOM.Ref.callbackDomRef(register(HookForm.makeRegisterOptions()))} /> </div>
-      </div>
-      <div className="field">
-        <div className="control">
-          <button className="button is-link" > {t(~key=`${componentName}.submit`, ())} </button>
+  let handleSubmitError = (~errors, ~event as e) => {
+    ReactEvent.Form.preventDefault(e)
+    Js.Console.log("@@@@@@@@@@@@@@@@@@@@@ cp 600: handleSubmitError()")
+  }
+
+  <form onSubmit={HookForm.toFormEventHandler(handleSubmit(~dataHandler=handleSubmitData, ~errorHandler=handleSubmitError))}>
+    <div className="content">
+      <div className="box">
+        <div className="field">
+          <label className="label" > {t(~key=`${componentName}.user name`, ())}{React.string(":")} </label>
+          <div className="control"> <input type_="text" name="userName" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions()))} /> </div>
+        </div>
+        <div className="field">
+          <label className="label"> {t(~key=`${componentName}.email`, ())}{React.string(":")} </label>
+          <div className="control"> <input type_="text"  name="userEmail" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions()))}/> </div>
+        </div>
+        <div className="field">
+          <label className="label"> {t(~key=`${componentName}.password`, ())} </label>
+          <div className="control"> <input type_="password" name="password" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions()))} /> </div>
+        </div>
+        <div className="field">
+          <div className="control">
+            <button className="button" type_="submit"> {t(~key=`${componentName}.submit`, ())} </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </form>
 }

@@ -3,6 +3,7 @@
     "user name": "uzivatelske meno",
     "email": "email",
     "password": "heslo",
+    "passwordVerify": "over heslo",
     "submit": "posli"
   }
 }

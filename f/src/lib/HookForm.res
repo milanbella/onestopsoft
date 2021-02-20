@@ -1,28 +1,42 @@
 type tRegisterOptions = {
   required: option<bool>,
+  min: option<int>,
+  max: option<int>,
+  minLength: option<int>,
   maxLength: option<int>,
+  pattern: option<Js.Re.t>,
 }
 
-let makeRegisterOptions = (~required: option<bool> = ?, ~maxLength: option<int> = ?, ()): tRegisterOptions => {
-  let o: tRegisterOptions = {
+let makeRegisterOptions = (
+  ~required: option<bool> = ?, 
+  ~min: option<int> = ?, 
+  ~max: option<int> = ?, 
+  ~minLength: option<int> = ?,  
+  ~maxLength: option<int> = ?, 
+  ~pattern: option<Js.Re.t> = ?, 
+  ()): tRegisterOptions => {
+  {
     required: required,
+    min: min,
+    max: max,
+    minLength: minLength,
     maxLength: maxLength,
+    pattern: pattern
   }
-  o
 } 
 
-
-
-type tMouseEventHandler = ReactEvent.Mouse.t => unit
-type tFormEventHandler = ReactEvent.Form.t => unit
-external toMouseEventHandler: 'a => tMouseEventHandler = "%identity"
-external toFormEventHandler: 'a => tFormEventHandler = "%identity"
-
-type tUseForm<'registerOptions, 'data, 'submitErrors> = {
-  //register: tRegisterOptions => Js.nullable<Dom.element> => unit,
-  register: (. tRegisterOptions) => ReactDOM.Ref.callbackDomRef,
-  handleSubmit: (~dataHandler: (~data: 'data, ~event: ReactEvent.Form.t) => unit, ~errorHandler: (~errors: 'submitErrors, ~event: ReactEvent.Form.t) => unit = ?, unit) => unit, 
+module Error = {
+  type t = {
+    "type": string 
+  }
 }
 
-@bs.module("react-hook-form") external useForm: unit => tUseForm<'registerOptions, 'data, 'submitErrors> = "useForm"
+type tUseForm<'registerOptions, 'data> = {
+  register: (. tRegisterOptions) => ReactDOM.Ref.callbackDomRef,
+  handleSubmit: (. ~dataHandler: (~data: 'data, ~event: ReactEvent.Form.t) => unit) => unit, 
+  handleSubmitE: (. ~dataHandler: (~data: 'data, ~event: ReactEvent.Form.t) => unit, ~errorHandler: (~errors: Js.Dict.t<Error.t>, ~event: ReactEvent.Form.t) => unit) => unit, 
+  errors: Js.Dict.t<Error.t>
+}
+
+@bs.module("react-hook-form") external useForm: unit => tUseForm<'registerOptions, 'data> = "useForm"
 

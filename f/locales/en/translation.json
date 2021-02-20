@@ -3,6 +3,7 @@
     "user name": "user name",
     "email": "email",
     "password": "password",
+    "passwordVerify": "verify password",
     "submit": "submit"
   }
 }

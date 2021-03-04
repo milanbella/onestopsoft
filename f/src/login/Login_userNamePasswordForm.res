@@ -49,7 +49,7 @@ let make = () => {
     | Some(err) =>
         if err["type"] == vtype {
           Js.Console.log("error: " ++ field)
-          <FormError msg={msg} />
+          <FormFieldError msg={msg} />
         } else {
           React.string("")
         }
@@ -57,40 +57,46 @@ let make = () => {
     }
   }
 
-  let passwordVerifyError = () => {
-    <FormError msg="passwords does't match" />
-  }
-
-  <form onSubmit={_ => handleSubmit(. ~dataHandler=handleSubmitData)}>
-    <div className="content">
-      <div className="box">
-        <div className="field">
-          <label className="label" > {t(~key=`${componentName}.user name`, ())}{React.string(":")} </label>
-          <div className="control"> <input type_="text" name="userName" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
-          {showError("userName", "required", "user name is required")}
+  <div className="container">
+    <form onSubmit={handleSubmit(. ~dataHandler=handleSubmitData)}>
+      <div className="card">
+        <header className="card-header">
+           <p className="card-header-title is-centered is-justify-content-center has-background-dark has-text-white">{t(~key=`${componentName}.New user registration`, ())}</p>
+        </header>
+        <div className="card-content">
+            <div className="columns is-justify-content-center">
+              <div className="column is-narrow">
+                <div className="field">
+                  <label className="label" > {t(~key=`${componentName}.user name`, ())}</label>
+                  <div className="control"> <input type_="text" name="userName" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
+                  {showError("userName", "required", "user name is required")}
+                </div>
+                <div className="field">
+                  <label className="label"> {t(~key=`${componentName}.email`, ())}</label>
+                  <div className="control"> <input type_="text"  name="userEmail" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ~pattern=%re("/\w+@\w+/"), ())))}/> </div>
+                  {showError("userEmail", "required", "user email is required")}
+                  {showError("userEmail", "pattern", "wrong format")}
+                </div>
+                <div className="field">
+                  <label className="label"> {t(~key=`${componentName}.password`, ())} </label>
+                  <div className="control"> <input type_="password" name="password" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
+                  {showError("password", "required", "password is required")}
+                </div>
+                <div className="field">
+                  <label className="label"> {t(~key=`${componentName}.passwordVerify`, ())} </label>
+                  <div className="control"> <input type_="passwordVerify" name="passwordVerify" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
+                  {showError("passwordVerify", "required", "please reatype password")}
+                </div>
+                <ErrorMessage msg={"Passwords do not natch"} />
+              </div>
+            </div>
         </div>
-        <div className="field">
-          <label className="label"> {t(~key=`${componentName}.email`, ())}{React.string(":")} </label>
-          <div className="control"> <input type_="text"  name="userEmail" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ~pattern=%re("/\w+@\w+/"), ())))}/> </div>
-          {showError("userEmail", "required", "user email is required")}
-          {showError("userEmail", "pattern", "wrong format")}
-        </div>
-        <div className="field">
-          <label className="label"> {t(~key=`${componentName}.password`, ())} </label>
-          <div className="control"> <input type_="password" name="password" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
-          {showError("password", "required", "password is required")}
-        </div>
-        <div className="field">
-          <label className="label"> {t(~key=`${componentName}.passwordVerify`, ())} </label>
-          <div className="control"> <input type_="passwordVerify" name="passwordVerify" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
-          {showError("passwordVerify", "required", "please reatype password")}
-        </div>
-        <div className="field">
-          <div className="control">
-            <button className="button" type_="submit"> {t(~key=`${componentName}.submit`, ())} </button>
+        <footer className="card-footer">
+          <div className="card-footer-item">
+              <button className="button is-primary is-fullwidth" type_="submit"> {t(~key=`${componentName}.submit`, ())} </button>
           </div>
-        </div>
+        </footer>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 }

@@ -34,9 +34,9 @@ let registerUser = (user: User.t): Js.Promise.t<Belt.Result.t<unit, string>> => 
 
 @react.component
 let make = () => {
-  let t = Translation.useTranslate()
+  let t = Cf.Translation.useTranslate()
   //let { register, handleSubmit } = HookForm.useForm();
-  let {HookForm.register, handleSubmit, errors} = HookForm.useForm();
+  let {Cf.HookForm.register, handleSubmit, errors} = Cf.HookForm.useForm();
 
   let handleSubmitData = (~data as user: User.t, ~event as e) => {
     ReactEvent.Form.preventDefault(e)
@@ -49,7 +49,7 @@ let make = () => {
     | Some(err) =>
         if err["type"] == vtype {
           Js.Console.log("error: " ++ field)
-          <FormFieldError msg={msg} />
+          <Cf.FormFieldError msg={msg} />
         } else {
           React.string("")
         }
@@ -68,26 +68,26 @@ let make = () => {
               <div className="column is-narrow">
                 <div className="field">
                   <label className="label" > {t(~key=`${componentName}.user name`, ())}</label>
-                  <div className="control"> <input type_="text" name="userName" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
+                  <div className="control"> <input type_="text" name="userName" ref={ReactDOM.Ref.callbackDomRef(register(. Cf.HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
                   {showError("userName", "required", "user name is required")}
                 </div>
                 <div className="field">
                   <label className="label"> {t(~key=`${componentName}.email`, ())}</label>
-                  <div className="control"> <input type_="text"  name="userEmail" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ~pattern=%re("/\w+@\w+/"), ())))}/> </div>
+                  <div className="control"> <input type_="text"  name="userEmail" ref={ReactDOM.Ref.callbackDomRef(register(. Cf.HookForm.makeRegisterOptions(~required=true, ~pattern=%re("/\w+@\w+/"), ())))}/> </div>
                   {showError("userEmail", "required", "user email is required")}
                   {showError("userEmail", "pattern", "wrong format")}
                 </div>
                 <div className="field">
                   <label className="label"> {t(~key=`${componentName}.password`, ())} </label>
-                  <div className="control"> <input type_="password" name="password" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
+                  <div className="control"> <input type_="password" name="password" ref={ReactDOM.Ref.callbackDomRef(register(. Cf.HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
                   {showError("password", "required", "password is required")}
                 </div>
                 <div className="field">
                   <label className="label"> {t(~key=`${componentName}.passwordVerify`, ())} </label>
-                  <div className="control"> <input type_="passwordVerify" name="passwordVerify" ref={ReactDOM.Ref.callbackDomRef(register(. HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
+                  <div className="control"> <input type_="passwordVerify" name="passwordVerify" ref={ReactDOM.Ref.callbackDomRef(register(. Cf.HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
                   {showError("passwordVerify", "required", "please reatype password")}
                 </div>
-                <ErrorMessage msg={"Passwords do not natch"} />
+                <Cf.ErrorMessage msg={"Passwords do not natch"} />
               </div>
             </div>
         </div>

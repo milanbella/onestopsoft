@@ -1,4 +1,4 @@
-// This is useTranslation() hook isnspired by https://react.i18next.com/latest/usetranslation-hook which did not behave well with reason-react
+// This is useTranslation() hook isnspired by https://react.i18next.com/latest/usetranslation-hook
 
 let cFILE = "Translation.re"
 

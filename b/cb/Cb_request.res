@@ -11,7 +11,7 @@ let getJsonBody = (req): option<Js.Json.t> => {
     Some(Js.Json.parseExn(s))
   } catch {
   | e =>
-    Logger.errorE(cFILE, cFUN, "error parsing json request body", e) 
+    Cb_logger.errorE(cFILE, cFUN, "error parsing json request body", e) 
     None
   }
 }

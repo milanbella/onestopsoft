@@ -6,6 +6,9 @@
     "dir" : "src",
     "subdirs" : true
   },{
+    "dir" : "cb",
+    "subdirs" : true
+  },{
     "dir" : "../c",
     "subdirs" : true
   }],

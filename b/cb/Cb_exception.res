@@ -1,1 +1,2 @@
 exception BAD_REQUEST
+exception BAD_FILE

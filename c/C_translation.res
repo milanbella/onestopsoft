@@ -38,13 +38,6 @@ type tStringMatch = {
 
 type tFetchModule = (string, string) => Js.Promise.t<string>
 
-let fetchModule = (lang, moduleName) => {
-  let cFUN = "fetchModule()"
-
-  Fetch.fetch("/" ++ (modulesRootPath ++ ("/" ++ (lang ++ "/" ++ (moduleName ++ ".json")))))
-  |> Js.Promise.then_(Fetch.Response.text)
-}
-
 let makeTranslation = (fetchModuleFn: tFetchModule) => {
   let moduleCash: Js.Dict.t<tModuleState> = Js.Dict.empty()
 

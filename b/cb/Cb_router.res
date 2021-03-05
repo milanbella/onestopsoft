@@ -1,5 +1,5 @@
 type t 
-type handler = (Request.t, Response.t) => unit
+type handler = (Cb_request.t, Cb_response.t) => unit
 
 @bs.module("express") external router: () => t = "Router" 
 

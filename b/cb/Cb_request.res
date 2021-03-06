@@ -4,15 +4,16 @@ let cFILE = "Request.res"
 
 @bs.get external body: t => string = "body"
 
-let getJsonBody = (req): option<Js.Json.t> => {
+let getJsonBody = (req): Belt.Result.t<Js.Json.t, Js.Json.t> => {
   let cFUN = "getJsonBody()"
   let s = body(req)
   try {
-    Some(Js.Json.parseExn(s))
+    //Belt.Result.Ok(Js.Json.parseExn(s))
+    C.Rest.Reply.reply(~ok=false, ~err="could not parse request json  body")
   } catch {
   | e =>
     Cb_logger.errorE(cFILE, cFUN, "error parsing json request body", e) 
-    None
+    Belt.Result.Error(C.Rest.Reply.reply(~ok=false, ~err="could not parse request json  body", ()))
   }
 }
 

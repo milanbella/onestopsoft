@@ -1,0 +1,6 @@
+{
+  "rest_create_user": {
+    "email_already_exists": "Such email already exists.",
+    "user_already_exists": "Such username already exists."
+  }
+}

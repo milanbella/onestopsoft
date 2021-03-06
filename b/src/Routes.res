@@ -2,45 +2,18 @@ let router = Cb.Router.router()
 
 let cFILE = "Routes.res"
 
+
 let createUser = Cb.Router.post(router, "/api/create_user", (req, res) => {
   let cFUNC = "createUser()"
 
-  module User = {
-    type t = {
-      userName: string,
-      userEmail: string,
-      password: string,
-    }
-  }
-
-  let decodeUser = (json): option<User.t> => {
-    try {
-      open Json.Decode
-      let user: User.t = {
-        userName: json |> field("user_name", string), 
-        userEmail: json |> field("user_email", string), 
-        password: json |> field("password", string), 
-      }
-      Some(user)
-    } catch {
-    | e => 
-      Cb.Logger.errorE(cFILE, cFUNC, "could not decode user", e)
-      None
-    }
-  }
-
-  let createNewUser = (user: User.t): Js.Promise.t<unit> => {
+  let createNewUser = (user: User.t): Js.Promise.t<Belt.Result.t<Js.Json.t, Js.Json.t>>  => {
     Cb.Pool.query("insert ino users(id, user_name, user_email, passowrd) values(?, ?, ?, ?)", [Cb.Pg.Query.string(Cb.Uuid.id()), Cb.Pg.Query.string(user.userName), Cb.Pg.Query.string(user.userEmail), Cb.Pg.Query.string(Cb.Crypto.sha256(user.userEmail))])  
     -> Js.Promise.then_((_) => {
-      Cb.Response.status(res, 200) 
-      Cb.Response.sendObject(res, Js.Obj.empty()) 
-      Js.Promise.resolve(())
+      Belt.Result.Ok(C.Rest.Reply.reply(~ok=true, ()))
     },_) 
     -> Js.Promise.catch((e) => {
       Cb.Logger.errorE(cFILE, cFUNC, "createNewUser() error", e)
-      Cb.Response.status(res, 500) 
-      Cb.Response.end(res) 
-      Js.Promise.resolve(())
+      Js.Promise.reject(e)
     },_)
   } 
 
@@ -50,67 +23,61 @@ let createUser = Cb.Router.post(router, "/api/create_user", (req, res) => {
     }
   }
 
-  let verifyUserName = (user: User.t): Js.Promise.t<unit> => {
+  let verifyUserName = (user: User.t): Js.Promise.t<Belt.Result.t<Js.Json.t, Js.Json.t>> => {
 
     Cb.Pool.query("select count(*) from users where user_name = ?", [Cb.Pg.Query.string(user.userName)])  
     -> Js.Promise.then_((result: Cb.Pg.Query.result<CountResult.t>) => {
-      if (result.rows[0].count > 0) {
-        Js.Promise.resolve(Cb.Promise.Continue(()))
+      if result.rows[0].count > 0 {
+        Js.Promise.resolve(Belt.Result.Error(C.Rest.Reply.reply(~ok=false, ~err="user_already_exists", ~message=Cb.Translation.translateKey("rest_create_user.user_already_exists", ()), ())))
       } else {
-        Js.Promise.resolve(Cb.Promise.Error(()))
+        createNewUser(user)
       }
     },_) 
-    -> Js.Promise.then_((cont) => {
-      switch cont {
-      | Cb.Promise.Error(_) => Js.Promise.resolve(())
-      | Cb.Promise.Continue(_) => createNewUser(user)->Js.Promise.then_(() => Js.Promise.resolve(()), _)
-      }
-    },_)
     -> Js.Promise.catch((e) => {
       Cb.Logger.errorE(cFILE, cFUNC, "verifyUserName() error", e)
-      Cb.Response.status(res, 500) 
-      Cb.Response.sendText(res, "error")
-      Js.Promise.resolve(())
+      Js.Promise.reject(e)
     },_)
   }
 
 
-  let verifyEmail = (user: User.t): Js.Promise.t<unit> => {
+  let verifyEmail = (user: User.t): Js.Promise.t<Belt.Result.t<Js.Json.t, Js.Json.t>> => {
 
     Cb.Pool.query("select count(*) from users where email = ?", [Cb.Pg.Query.string(user.userEmail)])  
     -> Js.Promise.then_((result: Cb.Pg.Query.result<CountResult.t>) => {
       if (result.rows[0].count > 0) {
-        Js.Promise.resolve(Cb.Promise.Continue(()))
+        Js.Promise.resolve(Belt.Result.Error(C.Rest.Reply.reply(~ok=false, ~err="email_already_exists", ~message=Cb.Translation.translateKey("rest_create_user.email_already_exists"), ())))
       } else {
-        Js.Promise.resolve(Cb.Promise.Error(()))
+        verifyUserName(user)
       }
     },_) 
-    -> Js.Promise.then_((cont) => {
-      switch cont {
-      | Cb.Promise.Error(_) => Js.Promise.resolve(())
-      | Cb.Promise.Continue(_) => verifyUserName(user) -> Js.Promise.then_(() => Js.Promise.resolve(()),_)
-      }
-    },_)
     -> Js.Promise.catch((e) => {
       Cb.Logger.errorE(cFILE, cFUNC, "verifyEmail() error", e)
-      Cb.Response.status(res, 500) 
-      Cb.Response.sendText(res, "error")
-      Js.Promise.resolve(())
+      Js.Promise.reject(e)
     },_)
   }
 
   switch Cb.Request.getJsonBody(req) {
-  | Some(body) => 
-    switch decodeUser(body) {
-    | Some(user) => ignore(verifyEmail(user)) 
-    | None => 
-      Cb.Response.status(res, 400) 
-      Cb.Response.sendText(res, "could not decode user")
+  | Ok(body) => 
+    switch C.Rest.Request.decodeUser(body) {
+    | Some(user) =>
+      verifyEmail(user) 
+      -> Js.Promise.then_((result) => {
+        switch result {
+        | Belt.Result.Ok(reply) => Cb.Response.sendJson(res, reply) 
+        | Belt.Result.Error(reply) => Cb.response.sendJson(res, reply)
+        } 
+      }, _)
+      -> Js.Promise.catch((e) => {
+        Cb.Response.status(res, 500) 
+        Cb.Response.sendJson(res, C.Rest.Reply.reply(~ok=false, ~err="error", ()))
+      },_)
+    | None =>
+        Cb.Response.status(res, 400) 
+        Cb.Response.sendJson(res, C.Rest.Reply.reply(~ok=false, ~err="could not json decode payload", ()))
     }
-  | None => 
+  | Error(reply) => 
       Cb.Response.status(res, 400) 
-      Cb.Response.sendText(res, "could not parse request body")
+      Cb.Response.sendJson(res, reply)
   }
-
 
 })

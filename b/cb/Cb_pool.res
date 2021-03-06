@@ -15,7 +15,7 @@ let query = (queryStr: string, params: array<Cb_pg.Query.param>): Js.Promise.t<C
     Cb_pg.Pool.query(pool, queryStr, params, (err, result) => {
       switch err {
       | Some(e) => 
-        Cb_logger.errorE(cFILE, cFUNC, `error, query: ${queryStr}`, err)
+        Cb_logger.errorE(cFILE, cFUNC, `error, query: ${queryStr}`, e)
         reject(. QueryError)
       | None => resolve(. result) 
       }

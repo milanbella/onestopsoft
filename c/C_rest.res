@@ -75,7 +75,7 @@ module Reply = {
 
   exception Data_encoder_parameter_missing
 
-  let reply = (~ok: bool, ~err: option<string> = ?, ~message: option<string> = ?, data: option<'a> = ?,  dataEncoder: option<Json.Encode.encoder<'a>> =?, ()): Js.Json.t => {
+  let reply = (~ok: bool, ~err: option<string> = ?, ~message: option<string> = ?, ~data: option<'a> = ?,  ~dataEncoder: option<Json.Encode.encoder<'a>> =?, ()): Js.Json.t => {
     switch data {
     | Some(_) => 
       switch dataEncoder {

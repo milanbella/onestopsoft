@@ -15,7 +15,7 @@ type tAction =
 
 let reducer = (state: t, action: tAction): t => {
   switch action {
-  | ChangeShowingComponent(c) => {... state, showingComponent: c} 
+  | ChangeShowingComponent(c) => {showingComponent: c} 
   | Noop => state
   }
 } 

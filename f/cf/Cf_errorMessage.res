@@ -10,7 +10,7 @@ let make = (~msg: string) => {
            <button className="delete" ariaLabel="delete" onClick={_ => setIsDisplayed(_ => false)}></button>
         </div>
         <div className="message-body">
-          {React.string("Passwords do not match")}
+          {React.string(msg)}
         </div>
       </article>
     } else {

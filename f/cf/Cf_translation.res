@@ -6,7 +6,6 @@ let cFILE = "Translation.re"
 let modulesRootPath = "locales"
 
 let fetchModule = (lang, moduleName) => {
-  let cFUN = "fetchModule()"
 
   Fetch.fetch("/" ++ (modulesRootPath ++ ("/" ++ (lang ++ "/" ++ (moduleName ++ ".json")))))
   |> Js.Promise.then_(Fetch.Response.text)
@@ -28,7 +27,7 @@ let useTranslate = () => {
             Js.Promise.resolve(());
           })
         |> Js.Promise.catch((exn) => {
-            Js.Console.error2(j`${cFILE}:${cFUN} failed to translate key '${key}'`, exn);
+            C.Logger.errorE(cFILE, cFUN, `failed to translate key '${key}'`, exn);
             Js.Promise.resolve(());
           })
     )

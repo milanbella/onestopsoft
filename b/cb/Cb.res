@@ -4,7 +4,6 @@ Common backend modules.
 
 module Crypto = Cb_crypto
 module Exception = Cb_exception
-module Logger = Cb_logger
 module Pg = Cb_pg
 module Pool = Cb_pool
 module Request = Cb_request

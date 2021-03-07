@@ -11,7 +11,7 @@ let createUser = Cb.Router.post(router, "/api/create_user", (req, res) => {
       Js.Promise.resolve(Belt.Result.Ok(C.Rest.Reply.reply(~ok=true, ())))
     },_) 
     -> Js.Promise.catch((e) => {
-      Cb.Logger.errorE(cFILE, cFUNC, "createNewUser() error", e)
+      C.Logger.errorE(cFILE, cFUNC, "createNewUser() error", e)
       Js.Promise.reject(Cb.Exception.Error("createNewUser() error"))
     },_)
   } 
@@ -36,7 +36,7 @@ let createUser = Cb.Router.post(router, "/api/create_user", (req, res) => {
       }
     },_) 
     -> Js.Promise.catch((e) => {
-      Cb.Logger.errorE(cFILE, cFUNC, "verifyUserName() error", e)
+      C.Logger.errorE(cFILE, cFUNC, "verifyUserName() error", e)
       Js.Promise.reject(Cb.Exception.Error("verifyUserName() error"))
     },_)
   }
@@ -56,7 +56,7 @@ let createUser = Cb.Router.post(router, "/api/create_user", (req, res) => {
       }
     },_) 
     -> Js.Promise.catch((e) => {
-      Cb.Logger.errorE(cFILE, cFUNC, "verifyEmail() error", e)
+      C.Logger.errorE(cFILE, cFUNC, "verifyEmail() error", e)
       Js.Promise.reject(Cb.Exception.Error("verifyEmail() error"))
     },_)
   }
@@ -73,7 +73,7 @@ let createUser = Cb.Router.post(router, "/api/create_user", (req, res) => {
         } 
       }, _)
       -> Js.Promise.catch((e) => {
-        Cb.Logger.errorE(cFILE, cFUNC, "verifyEmail() error", e)
+        C.Logger.errorE(cFILE, cFUNC, "verifyEmail() error", e)
         Cb.Response.status(res, 500) 
         Js.Promise.resolve(Cb.Response.sendJson(res, C.Rest.Reply.reply(~ok=false, ~err="error", ())))
       },_)

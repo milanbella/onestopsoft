@@ -6,7 +6,7 @@ let pool = Cb_pg.Pool.new()
 
 Cb_pg.Pool.on(pool, "error", (err) => {
   let cFUN = "Pg.Pool.on()"
-  Cb_logger.errorE(cFILE, cFUN, "error", err)
+  C_logger.errorE(cFILE, cFUN, "error", err)
 })
 
 let query = (queryStr: string, params: array<Cb_pg.Query.param>): Js.Promise.t<Cb_pg.Query.result<'a>> => {
@@ -15,7 +15,7 @@ let query = (queryStr: string, params: array<Cb_pg.Query.param>): Js.Promise.t<C
     Cb_pg.Pool.query(pool, queryStr, params, (err, result) => {
       switch err {
       | Some(e) => 
-        Cb_logger.errorE(cFILE, cFUNC, `error, query: ${queryStr}`, e)
+        C_logger.errorE(cFILE, cFUNC, `error, query: ${queryStr}`, e)
         reject(. QueryError)
       | None => resolve(. result) 
       }

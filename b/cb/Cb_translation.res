@@ -14,14 +14,14 @@ let fetchModule = (lang: string, moduleName: string): Js.Promise.t<string> => {
   | Js.Exn.Error(obj) =>
     switch Js.Exn.message(obj) {
     | Some(m) => 
-      Cb_logger.errorE(cFILE, cFUNC, `error while reading form file: ${m}`, obj)
+      C_logger.errorE(cFILE, cFUNC, `error while reading form file: ${m}`, obj)
       Js.Promise.reject(Cb_exception.BAD_FILE)
     | None =>
-      Cb_logger.error(cFILE, cFUNC, "error while reading form file")
+      C_logger.error(cFILE, cFUNC, "error while reading form file")
       Js.Promise.reject(Cb_exception.BAD_FILE)
     }
   | _ =>
-    Cb_logger.error(cFILE, cFUNC, "error while reading form file")
+    C_logger.error(cFILE, cFUNC, "error while reading form file")
     Js.Promise.reject(Cb_exception.BAD_FILE)
   }
 }

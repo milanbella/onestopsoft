@@ -154,7 +154,7 @@ let makeTranslation = (fetchModuleFn: tFetchModule) => {
     }
   `)
 
-  let interpolateKeyValue = (keyValue, ~bindings=?, ()) => {
+  let interpolateKeyValue = (keyValue: string, ~bindings: option<Js.Dict.t<string>> = ?, ()) => {
     let rgx = Js.Re.fromString("\\${(\\w+)}");
 
     let rec doit = (restStr, bindings, result) => {
@@ -187,7 +187,7 @@ let makeTranslation = (fetchModuleFn: tFetchModule) => {
   }
 
 
-  let translateKey = (~key: string, ~bindings=?, ()) => {
+  let translateKey = (~key: string, ~bindings: option<Js.Dict.t<string>> = ?, ()) => {
     let cFUN = "translateKey()";
     let parsedKey = parseKey(key);
     let moduleName = switch(parsedKey.moduleName) {

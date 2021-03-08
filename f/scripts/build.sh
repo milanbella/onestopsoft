@@ -7,6 +7,7 @@ mkdir ../b/public
 cp html/*.html ../b/public/
 cp -r locales/ ../b/public/
 npm run clean
+npm run sync
 npm run build
 npm run webpack
 npm run css-build

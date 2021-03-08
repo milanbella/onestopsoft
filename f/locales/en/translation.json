@@ -5,6 +5,7 @@
     "email": "email",
     "password": "password",
     "passwordVerify": "verify password",
-    "submit": "submit"
+    "submit": "submit",
+    "passwords do not match": "Passwords do not match."
   }
 }

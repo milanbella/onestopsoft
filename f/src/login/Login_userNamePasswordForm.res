@@ -32,16 +32,35 @@ let registerUser = (user: User.t): Js.Promise.t<Belt.Result.t<unit, string>> => 
   }, _)
 }
 
+
 @react.component
 let make = () => {
+
+  module FormData = {
+    type t = {
+      userName: string,
+      userEmail: string,
+      password: string,
+      passwordVerify: string
+    }
+  }
+
   let t = Cf.Translation.useTranslate()
   //let { register, handleSubmit } = HookForm.useForm();
   let {Cf.HookForm.register, handleSubmit, errors} = Cf.HookForm.useForm();
 
-  let handleSubmitData = (~data as user: User.t, ~event as e) => {
+  let (_, setErrorMsg) = React.useState(() => "")
+
+  let handleSubmitData = (~data: FormData.t , ~event as e) => {
     ReactEvent.Form.preventDefault(e)
     Js.Console.log("@@@@@@@@@@@@@@@@@@@@@ cp 500: handleSubmitData()")
-    Js.Console.log(user)
+    Js.Console.log(data)
+
+    if data.password != data.passwordVerify {
+      setErrorMsg(_ => "passwords do not match");
+    } else {
+      ()
+    }
   }
 
   let showError = (field: string, vtype: string, msg: string) => {
@@ -87,7 +106,7 @@ let make = () => {
                   <div className="control"> <input type_="passwordVerify" name="passwordVerify" ref={ReactDOM.Ref.callbackDomRef(register(. Cf.HookForm.makeRegisterOptions(~required=true, ())))} /> </div>
                   {showError("passwordVerify", "required", "please reatype password")}
                 </div>
-                <Cf.ErrorMessage msg={"Passwords do not natch"} />
+                <Cf.ErrorMessage msgKey={"passwords do not match"} />
               </div>
             </div>
         </div>
@@ -99,4 +118,5 @@ let make = () => {
       </div>
     </form>
   </div>
+
 }

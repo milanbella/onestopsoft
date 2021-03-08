@@ -10,7 +10,7 @@
     "dir" : "cf",
     "subdirs" : true
   },{
-    "dir" : "../c",
+    "dir" : "c",
     "subdirs" : true
   }],
   "bsc-flags": ["-bs-super-errors", "-bs-no-version-header"],

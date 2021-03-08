@@ -2,6 +2,7 @@
   "name": "f",
   "version": "0.1.0",
   "scripts": {
+    "sync": "rsync ../c/*.res ./c",
     "build": "bsb -make-world",
     "start": "bsb -make-world -w -ws _ ",
     "clean": "bsb -clean-world",

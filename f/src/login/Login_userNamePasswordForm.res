@@ -1,3 +1,4 @@
+let cFILE = "Login_userNamePasswordForm.res"
 let componentName = "Login_userNamePasswordForm"
 
 module User = {
@@ -8,7 +9,8 @@ module User = {
   }
 }
 
-let registerUser = (user: User.t): Js.Promise.t<Belt.Result.t<unit, string>> => {
+let registerUser = (user: User.t): Js.Promise.t<Belt.Result.t<unit, (string, string)>> => {
+  let cFUNC = "registerUser()"
   let encodeUser = () => {
     open Json.Encode
     object_(list{
@@ -25,16 +27,41 @@ let registerUser = (user: User.t): Js.Promise.t<Belt.Result.t<unit, string>> => 
   Fetch.fetchWithInit("/api/create_user", init)
   -> Js.Promise.then_((response) => {
     if Fetch.Response.ok(response) {
-      Js.Promise.resolve(Belt.Result.Ok(()))
+      Fetch.Response.text(response) 
+      -> Js.Promise.then_((txt) => {
+          let reply = C.Rest.Reply.decode(~reply=txt, ());
+          switch reply {
+          | Some(r) =>
+            if !r.ok {
+              Js.Promise.resolve(Belt.Result.Error(C.Rest.Reply.toError(r)))
+            } else {
+              Js.Promise.resolve(Belt.Result.Ok(()))
+            }
+          | None => 
+            C.Logger.error(cFILE, cFUNC, "C.Rest.Reply.decode() failed")
+            Js.Promise.resolve(Belt.Result.Error("error", ""))
+          }
+        }, _)
     } else {
-      Fetch.Response.text(response) -> Js.Promise.then_((msg) => Js.Promise.resolve(Belt.Result.Error(msg)), _)
+      let status = Js.Int.toString(Fetch.Response.status(response));
+      Fetch.Response.text(response) 
+      -> Js.Promise.then_((txt) => {
+        C.Logger.error(cFILE, cFUNC, `calling /api/create_user failed, http status: ${status}, body: ${txt}`)
+        Js.Promise.resolve(Belt.Result.Error("error", ""))
+      }, _)
     }
   }, _)
+  -> Js.Promise.catch((err) => {
+    C.Logger.errorE(cFILE, cFUNC, `calling /api/create_user failed`, err)
+    Js.Promise.resolve(Belt.Result.Error("error", ""))
+  }, _)
+
 }
 
 
 @react.component
 let make = () => {
+  let cFUNC = "make()"
 
   module FormData = {
     type t = {
@@ -59,7 +86,24 @@ let make = () => {
     if data.password != data.passwordVerify {
       setErrorMsg(_ => "passwords do not match");
     } else {
-      ()
+      let user: User.t = {
+        userEmail: data.userEmail,
+        userName: data.userName,
+        password: data.password
+      }
+      ignore(registerUser(user)
+      -> Js.Promise.then_(res => {
+        switch res {
+        | Belt.Result.Ok(_) => Js.Promise.resolve(())
+        | Belt.Result.Error((_, message)) => 
+          setErrorMsg(_ => message)
+          Js.Promise.resolve(())
+        }
+      }, _)
+      -> Js.Promise.catch(err => {
+        C.Logger.errorE(cFILE, cFUNC, "registerUser() failed", err)
+        Js.Promise.resolve(())
+      }, _))
     }
   }
 

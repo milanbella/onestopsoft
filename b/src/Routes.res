@@ -27,10 +27,10 @@ let createUser = Cb.Router.post(router, "/api/create_user", (req, res) => {
     Cb.Pool.query("select count(*) from users where user_name = ?", [Cb.Pg.Query.string(user.userName)])  
     -> Js.Promise.then_((result: Cb.Pg.Query.result<CountResult.t>) => {
       if result.rows[0].count > 0 {
-		Cb.Translation.translateKey(~key="rest_create_user.user_already_exists", ())
-		-> Js.Promise.then_(message => {
-			Js.Promise.resolve(Belt.Result.Error(C.Rest.Reply.reply(~ok=false, ~err="user_already_exists", ~message=message, ())))
-		}, _)
+        Cb.Translation.translateKey(~key="rest_create_user.user_already_exists", ())
+        -> Js.Promise.then_(message => {
+          Js.Promise.resolve(Belt.Result.Error(C.Rest.Reply.reply(~ok=false, ~err="user_already_exists", ~message=message, ())))
+        }, _)
       } else {
         createNewUser(user)
       }
@@ -47,14 +47,14 @@ let createUser = Cb.Router.post(router, "/api/create_user", (req, res) => {
     Cb.Pool.query("select count(*) from users where email = ?", [Cb.Pg.Query.string(user.userEmail)])  
     -> Js.Promise.then_((result: Cb.Pg.Query.result<CountResult.t>) => {
       if (result.rows[0].count > 0) {
-		Cb.Translation.translateKey(~key="rest_create_user.email_already_exists", ())
-		 -> Js.Promise.then_((message) => {
-			Js.Promise.resolve(Belt.Result.Error(C.Rest.Reply.reply(~ok=false, ~err="email_already_exists", ~message=message, ())))
-		}, _)
-      } else {
-        verifyUserName(user)
-      }
-    },_) 
+        Cb.Translation.translateKey(~key="rest_create_user.email_already_exists", ())
+         -> Js.Promise.then_((message) => {
+          Js.Promise.resolve(Belt.Result.Error(C.Rest.Reply.reply(~ok=false, ~err="email_already_exists", ~message=message, ())))
+        }, _)
+          } else {
+            verifyUserName(user)
+          }
+        },_) 
     -> Js.Promise.catch((e) => {
       C.Logger.errorE(cFILE, cFUNC, "verifyEmail() error", e)
       Js.Promise.reject(Cb.Exception.Error("verifyEmail() error"))

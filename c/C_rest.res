@@ -37,91 +37,44 @@ module Request = {
 }
 
 module Reply = {
-  type t<'a> = {
+  type t = {
     ok: bool,
     err: option<string>,
     message: option<string>,
-    data: option<'a>
+    data: option<string>
   }
 
-  let toError = (reply: t<'a>): (string, string) => {
-    let toString = (str: option<string>): string => {
-      switch str {
-      | Some(str) => str
-      | None => ""
-      }
-    }
-
-    if reply.ok {
-      ("", "")
-    } else {
-      (toString(reply.err), toString(reply.message))
-    }
-  }
-
-  let _encode = (d: t<'a>, dataEncoder: option<Json.Encode.encoder<'a>>): Js.Json.t => {
+  let _encode = (d: t): Js.Json.t => {
     open Json.Encode
-    switch dataEncoder {
-    | Some(de) => object_(list{
+    object_(list{
         ("ok", bool(d.ok)),
         ("err", nullable(string)(d.err)),
         ("message", nullable(string)(d.message)),
-        ("data", nullable(de)(d.data)) 
+        ("data", nullable(string)(d.data)) 
       })
-    | None => object_(list{
-        ("ok", bool(d.ok)),
-        ("err", nullable(string)(d.err)),
-        ("message", nullable(string)(d.message)),
-        ("data", Js.Json.null) 
-      })
-    }
   }
 
   exception Data_encoder_parameter_missing
 
-  let encode = (~ok: bool, ~err: option<string> = ?, ~message: option<string> = ?, ~data: option<'a> = ?,  ~dataEncoder: option<Json.Encode.encoder<'a>> =?, ()): Js.Json.t => {
-    switch data {
-    | Some(_) => 
-      switch dataEncoder {
-      | Some(encoder) =>
-        _encode({
-          ok: ok,
-          err: err,
-          message: message,
-          data: data
-        }, Some(encoder))
-      | None => 
-        raise(Data_encoder_parameter_missing)
-      }
-    | None => 
-        _encode({
-          ok: ok,
-          err: err,
-          message: message,
-          data: data
-        }, None)
-
-    }
+  let encode = (~ok: bool, ~err: option<string> = ?, ~message: option<string> = ?, ~data: option<string> = ?, ()): Js.Json.t => {
+    _encode({
+      ok: ok,
+      err: err,
+      message: message,
+      data: data
+    })
   }
 
-  let decodeReply = (j: Js.Json.t, dataDecoder: option<Json.Decode.decoder<'a>>): option<t<'a>> => {
+  let decodeReply = (j: Js.Json.t): option<t> => {
     let cFUNC = "decodeReply()"
     try {
       open Json.Decode
-      switch dataDecoder {
-      | Some(de) => Some({
+      Some({
           ok: field("ok", bool, j),
           err: field("err", optional(string), j),
           message: field("message", optional(string), j),
-          data: field("data", optional(de), j)
-        })
-      | None => Some({
-          ok: field("ok", bool, j),
-          err: field("err", optional(string), j),
-          message: field("message", optional(string), j),
-          data: None
-        })
-      }
+          data: field("data", optional(string), j)
+       })
     } catch {
     | Json.Decode.DecodeError(msg) =>
       C_logger.error(cFILE, cFUNC,`decode error: ${msg}`)
@@ -129,7 +82,7 @@ module Reply = {
     }
   }
 
-  let decode = (~reply: string, ~dataDecoder: option<Json.Decode.decoder<'a>> = ?, () ): option<t<'a>> => {
+  let decode = (~reply: string, ()): option<t> => {
     let cFUNC = "decode()"
     let json: option<Js.Json.t> = try {
       Some(Js.Json.parseExn(reply)) 
@@ -139,7 +92,7 @@ module Reply = {
       None
     }
     switch json {
-    | Some(j) => decodeReply(j, dataDecoder)
+    | Some(j) => decodeReply(j)
     | None => None
     }
   }

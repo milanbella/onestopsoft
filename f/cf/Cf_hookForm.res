@@ -33,12 +33,12 @@ module Error = {
 
 type tOnSubmit = ReactEvent.Form.t => unit
 
-type tUseForm<'data> = {
+type tUseForm = {
   register: (. tRegisterOptions) => ReactDOM.Ref.callbackDomRef,
-  handleSubmit: (. ~dataHandler: (~data: 'data, ~event: ReactEvent.Form.t) => unit) => tOnSubmit, 
+  handleSubmit: (. ~dataHandler: (~data: Js.Json.t, ~event: ReactEvent.Form.t) => unit) => tOnSubmit, 
   watch: unit,
   errors: Js.Dict.t<Error.t>
 }
 
-@bs.module("react-hook-form") external useForm: unit => tUseForm<'data> = "useForm"
+@bs.module("react-hook-form") external useForm: unit => tUseForm = "useForm"
 

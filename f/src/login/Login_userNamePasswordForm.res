@@ -33,19 +33,30 @@ let make = () => {
       password: string,
       passwordVerify: string
     }
+
+    let decode = (j: Js.Json.t): option<t> => {
+      try {
+        open Json.Decode
+        Some({
+          userName: field("userName", string, j),
+          userEmail: field("userEmail", string, j),
+          password: field("password", string, j),
+          passwordVerify: field("passwordVerify", string, j)
+        })
+      } catch {
+      | Json.Decode.DecodeError(msg) =>
+        C_logger.error(cFILE, cFUNC,`decode error: ${msg}`)
+        None
+      }
+    }
   }
 
   let t = Cf.Translation.useTranslate()
-  //let { register, handleSubmit } = HookForm.useForm();
   let {Cf.HookForm.register, handleSubmit, errors} = Cf.HookForm.useForm();
 
   let (_, setErrorMsg) = React.useState(() => "")
 
-  let handleSubmitData = (~data: FormData.t , ~event as e) => {
-    ReactEvent.Form.preventDefault(e)
-    Js.Console.log("@@@@@@@@@@@@@@@@@@@@@ cp 500: handleSubmitData()")
-    Js.Console.log(data)
-
+  let handleFormData = (data: FormData.t) => {
     if data.password != data.passwordVerify {
       setErrorMsg(_ => "passwords do not match");
     } else {
@@ -67,6 +78,21 @@ let make = () => {
         C.Logger.errorE(cFILE, cFUNC, "registerUser() failed", err)
         Js.Promise.resolve(())
       }, _))
+    }
+  }
+
+  let handleSubmitData = (~data: Js.Json.t, ~event as e) => {
+    let cFUNC = "handleSubmitData()"
+    ReactEvent.Form.preventDefault(e)
+    Js.Console.log("@@@@@@@@@@@@@@@@@@@@@ cp 500: handleSubmitData()")
+    Js.Console.log(data)
+
+    let formData = FormData.decode(data); 
+    switch(formData) {
+    | Some(fd) => handleFormData(fd) 
+    | None =>
+        C.Logger.error(cFILE, cFUNC, "FormData.decode() failed")
+        setErrorMsg(_ => "error");
     }
   }
 

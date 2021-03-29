@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "sync": "rsync ../c/*.res ./c",
     "start": "node ./bin/www",
     "build": "bsb -make-world",
     "clean": "bsb -clean-world"

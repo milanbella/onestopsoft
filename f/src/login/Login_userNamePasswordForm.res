@@ -1,20 +1,12 @@
 let cFILE = "Login_userNamePasswordForm.res"
 let componentName = "Login_userNamePasswordForm"
 
-module User = {
-  type t = {
-    userName: string,
-    userEmail: string,
-    password: string,
-  }
-}
-
-let registerUser = (user: User.t): Js.Promise.t<Belt.Result.t<Cf.Rest.t, Cf.Rest.e>> => {
+let registerUser = (user: C.Rest.User.t): Js.Promise.t<Belt.Result.t<Cf.Rest.t, Cf.Rest.e>> => {
   let encodeUser = () => {
     open Json.Encode
     object_(list{
-      ("user_name", string(user.userName)),
-      ("user_email", string(user.userEmail)),
+      ("userName", string(user.userName)),
+      ("userEmail", string(user.userEmail)),
       ("password", string(user.password))
     })
   }
@@ -60,7 +52,7 @@ let make = () => {
     if data.password != data.passwordVerify {
       setErrorMsg(_ => "passwords do not match");
     } else {
-      let user: User.t = {
+      let user: C.Rest.User.t = {
         userEmail: data.userEmail,
         userName: data.userName,
         password: data.password

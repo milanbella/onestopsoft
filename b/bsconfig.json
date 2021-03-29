@@ -9,7 +9,7 @@
     "dir" : "cb",
     "subdirs" : true
   },{
-    "dir" : "../c",
+    "dir" : "c",
     "subdirs" : true
   }],
   "package-specs": {

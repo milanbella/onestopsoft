@@ -5,7 +5,7 @@
     "email": "email",
     "password": "heslo",
     "passwordVerify": "over heslo",
-    "submit": "posli"
+    "submit": "posli",
     "submit": "submit",
     "passwords do not match": "Hesla nesedia."
   }

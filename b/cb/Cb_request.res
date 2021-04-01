@@ -7,6 +7,7 @@ let cFILE = "Cb_request.res"
 
 let getJsonBody = (req): Belt.Result.t<Js.Json.t, Js.Json.t> => {
   //let cFUN = "getJsonBody()"
+  Js.Console.log(body(req))
   Belt.Result.Ok(body(req))
   /*
   let s = body(req)
